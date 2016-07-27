@@ -1,94 +1,81 @@
+import numpy
 from random import random, shuffle
-from math import log, exp
-from parcialVariables import varianzaEsperanza, poisson
+from math import exp, floor, log
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-ejercicio 1
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def esperanza(n):
-    #Utilizamos la ley de grandes numeros para aproximar
+def ejercicio1 (n):
 
-    Exito = 0
-    cartas = range(1,101)
-    shuffle(cartas)
+    exitos = 0
+    exitos_cuadra = 0
+
     for _ in xrange(n):
+        baraja = range(1, 101)
+        shuffle(baraja)
+        permutar(baraja)
 
-        permutar(cartas) #mezclar las cartas
+        for i in xrange(1, 101):
+            if i == baraja[i-1]:
+                exitos += 1
 
-        Exito += sum([cartas[i-1] == i for i in xrange(1,101)])
-    return float(Exito)/n
+    exitos_cuadra = exitos ** 2
+    print exitos, exitos_cuadra
+    return (exitos/float(n), (exitos_cuadra/float(n))-(exitos/float(n))**2)
 
-def varianza(n):
-    suma1=0
-    suma2=0
-    for _ in xrange(n):
-        cartas = range(1,101)
-        shuffle(cartas) #mezclar las cartas
 
-        Exito += sum([cartas[i-1] == i for i in xrange(1,101)])
+def permutar (baraja):
 
-        suma1 += Exito
-        suma2 += Exito**2
+    k = len(baraja) - 1
 
-    varianza = suma2/float(n) - (suma1/float(n))**2
+    while k > 1:
 
-    return varianza
-
-def permutar(cartas):
-    k = len(cartas)-1
-    while(k>1):
         U = random()
-        I = int(math.floor(k*U))
-        cartas[k],cartas[I] = cartas[I], cartas[k]
-        k = k - 1
+        I = int(floor(U * k))
+        baraja[k],baraja[I] = baraja[I], baraja[k]
+        k -= 1
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-ejercicio 2
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#print "(E[numero de exitos], V[num de exitos])con n:1000 = ", ejercicio1(1000)
 
-def ejer2(n = 100):
-    # constante N
-    N = 10000
-    # para sumar los a(Xi)
-    A = 0.0
+
+def ejercicio2 (n):
+
+    suma_parcial = 0
+
     for _ in xrange(n):
-        # simulo U en (0,1)
+
         U = random()
-        # simulo variable aleatorea en (1, 100)
-        X = int(U * N) + 1
-        # para guardar los a(X)
-        A += N * exp(X / float(N))
+        X = floor(10000 * U) + 1
+        suma_parcial += exp(U/10000)
 
-    return A / float(n)
+    return suma_parcial/float(n)
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-ejercicio 3
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+#print "aproximacion para 100 num aleatorios: ", ejercicio2(100)
 
-def ejer3ex():
-    numLanza = 0
-    # lista temporal para numeros del 2 al 12
-    listTmp = range(2, 13)
-    while listTmp:
-        # Hacemos un lanzamiento
-        numLanza += 1
-        # simulamos variables uniformes U1 y U2 ~ U(0, 1)
-        U1 = random()
-        U2 = random()
-        # simulamos dados D1 y D2 ~ U(1, 6)
-        D1 = int(U1 * 6) + 1
-        D2 = int(U2 * 6) + 1
-        # Ver el resultado de la suma de dados
-        result = D1 + D2
 
-        if result in listTmp:
-            listTmp.remove(result)
+def ejercicio3 (n):
 
-    return numLanza
+    num_tiradas = 0
+    for _ in xrange(n):
+        sumas = range(2, 13)
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-ejercicio 4 - inversa y geometrica
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+        while sumas != []:
+
+            D1 = int(random() * 6) + 1
+            D2 = int(random() * 6) + 1
+            suma = D1 + D2
+            num_tiradas += 1
+
+            if suma in sumas:
+                sumas.remove(suma)
+
+    esperanza = num_tiradas/float(n)
+    varianza = (num_tiradas ** 2/float(n)) - (esperanza ** 2)
+
+    return (round(esperanza), round(varianza, 2))
+
+#print "E[num_tiradas], V[num_tiradas] con n: 100 = ", ejercicio3(100)
+#print "E[num_tiradas], V[num_tiradas] con n: 1000 = ", ejercicio3(1000)
+#print "E[num_tiradas], V[num_tiradas] con n: 10000 = ", ejercicio3(10000)
+#print "E[num_tiradas], V[num_tiradas] con n: 100000 = ", ejercicio3(100000)
+
 
 def ejer4ex():
     # generar variable aleatorea U en (0, 1)
@@ -141,10 +128,6 @@ def ejer4ex2():
 
     return X
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-ejercicio 5 - inversa y geometrica
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 def ejer5a(lam, k):
     '''
     METODO DE TRANSFORMACION INVERSA
@@ -191,12 +174,3 @@ def ejer5c(lam, k):
     return X
 
 
-def esperanza(n = 100):
-    X = 0
-    Y = 0
-    for _ in xrange(n):
-        X += ejer5a(1, 10)
-        Y += ejer5c(1, 10)
-    return X / float(n), Y / float(n)
-
-print (esperanza(1000))
