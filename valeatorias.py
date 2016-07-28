@@ -353,3 +353,25 @@ def adelgazamientoMejor(lambdas,intervalos, funden,T):
             S.append(t)
 
     return S
+
+'''
+Estimacion de media M con error d:
+'''
+#p: generacion de una variable
+def estimacion(n, p):
+    M = p
+    S = 0
+    for i in xrange(2, n+1):
+        X = p
+        A = M
+        M = m + (X-M)/float(i)
+        S = (1 - 1/float(i-1))*S + i*((M-A)**2)
+
+    j = n+1
+    while sqrt(S/j) > error:
+        j += 1
+        X = p
+        A = M
+        M = M + (X - M)/float(j)
+        S = (1 - 1/float(j-1))*S + j*((M-A)**2)
+    return M
